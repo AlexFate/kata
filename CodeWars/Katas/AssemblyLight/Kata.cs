@@ -21,9 +21,10 @@ namespace CodeWars
 
         private static void Jump(object arg1, object arg2)
         {
-            var varName = arg1 as string;
             var jumpValue = Convert.ToInt32(arg2);
-            if (_variableValue[varName] == 0) return;
+            var varName = arg1 as string;
+            if(_variableValue.ContainsKey(varName))
+                if (_variableValue[varName] == 0) return;
             _instructionPointer--;
             _instructionPointer += jumpValue;
         }
