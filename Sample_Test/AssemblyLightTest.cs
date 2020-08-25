@@ -73,8 +73,10 @@ namespace Sample_Test
             };
             var expected = new Dictionary<string, int>()
             {
-                {"a", 0},
-                {"b", -20}
+                {"a", 318009},
+                {"b", 196418},
+                {"c", 0},
+                {"d", 0}
             };
             Assert.Equal(expected, Kata.Interpret(inputs));
         }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace CodeWars
 {
@@ -8,8 +7,8 @@ namespace CodeWars
     {
         private static Dictionary<string, int> _variableValue = new Dictionary<string, int>();
 
-        private static Dictionary<string, Action<object, object>> InstructionActions =>
-            new Dictionary<string, Action<object, object>>()
+        private static Dictionary<string, Action<string, string>> InstructionActions =>
+            new Dictionary<string, Action<string, string>>()
             {
                 ["mov"] = Move,
                 ["inc"] = Increase,
@@ -19,50 +18,32 @@ namespace CodeWars
 
         private static int _instructionPointer = 0;
 
-        private static void Jump(object arg1, object arg2)
+        private static void Jump(string arg1, string arg2)
         {
             var jumpValue = Convert.ToInt32(arg2);
-            var varName = arg1 as string;
-            if(_variableValue.ContainsKey(varName))
-                if (_variableValue[varName] == 0) return;
+            if(_variableValue.ContainsKey(arg1) && _variableValue[arg1] == 0) return;
+            
             _instructionPointer--;
             _instructionPointer += jumpValue;
         }
 
-        private static void Decrease(object arg1, object arg2 = null)
-        {
-            var varName = arg1 as string;
-            _variableValue[varName]--;
-        }
+        private static void Decrease(string arg1, string arg2 = null) => _variableValue[arg1]--;
 
-        private static void Increase(object arg1, object arg2 = null)
-        {
-            var key = Convert.ToString(arg1);
-            _variableValue[key]++;
-        }
+        private static void Increase(string arg1, string arg2 = null) => _variableValue[arg1]++;
 
-        private static void Move(object nameA, object nameB)
+        private static void Move(string nameA, string nameB)
         {
-            var key = Convert.ToString(nameA);
-            try
+            var isInt = int.TryParse(nameB, out var intValue);
+            if (!_variableValue.ContainsKey(nameA))
             {
-                int insert = Convert.ToInt32(nameB);
-                _variableValue.Add(key, insert);
+                _variableValue.Add(nameA, isInt ? intValue : _variableValue[nameB]);
             }
-            catch
-            {
-                string secondKey = Convert.ToString(nameB);
-                if (!_variableValue.ContainsKey(key))
-                {
-                    _variableValue.Add(key, _variableValue[secondKey]);
-                }
-                else _variableValue[key] = _variableValue[secondKey];
-            }
+            else _variableValue[nameA] = isInt ? intValue : _variableValue[nameB];
         }
         
         public static Dictionary<string, int> Interpret(string[] program)
         {
-            while (_instructionPointer < program.Count())
+            while (_instructionPointer < program.Length)
             {
                 ProcessInstruction(program[_instructionPointer]);
                 _instructionPointer++;
