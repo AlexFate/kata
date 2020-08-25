@@ -10,7 +10,7 @@ namespace CodeWars
         public static int LastDigit(string a, string b)
         {
             if (IsNumberZero(b) || IsNumberZero(a) && IsNumberZero(b)) return 1; 
-
+            
             if (IsNumberZero(a)) return 0;
             
             var remainder = GetOnFourRemainder(b);
@@ -19,7 +19,10 @@ namespace CodeWars
             
             var result = (int)Math.Pow(a[^1] - '0', exp); 
             
-            return result % 10; 
+            return result % 10;
+            
+            //Or this answer
+            //return (int)BigInteger.ModPow(BigInteger.Parse(a), BigInteger.Parse(b), 10);
         }
         private static int GetOnFourRemainder(IEnumerable<char> b)
         {
