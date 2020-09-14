@@ -72,10 +72,11 @@ namespace CodeWars
         }
         public bool InvokeComparison(Func<int, int, bool> predicate) => predicate.Invoke(A, B);
     }
-
     public sealed class Arguments
     {
-        private List<string> args => new List<string>();
+        private IImmutableList<string> args { get; }
+        public Arguments(IImmutableList<string> list) => args = list;
+        public Arguments(params string[] param) => args = param.ToImmutableList();
         public string First => args[0];
         public string Second => args.Count == 2 ? args[1] : "";
         public int Count => args.Count;
@@ -84,6 +85,7 @@ namespace CodeWars
             get => args[index];
             set => args.Add(value);
         }
+        public ImmutableList<string> ToImmutableList() => args.ToImmutableList();
     }
     public class ApplicationMemory
     {
@@ -112,14 +114,14 @@ namespace CodeWars
         public bool InvokeComparison(Func<int, int, bool> predicate) => Comparer.InvokeComparison(predicate);
         public int GetPointerOnLabel(string label) => _functionPointers[label];
         public int GetReturnPointer() => _returnPointerStack.Pop();
-        public void AddReturnPointer(int pointer) => _returnPointerStack.Push(pointer);
+        public void PushReturnPointer(int pointer) => _returnPointerStack.Push(pointer);
     }
     public class InstructionProcessor
     {
         private readonly ApplicationMemory _appMemory;
         private int _instructionPointer;
-        private Dictionary<string, Action<string, string>> InstructionActions =>
-            new Dictionary<string, Action<string, string>>
+        private Dictionary<string, Action<Arguments>> InstructionActions =>
+            new Dictionary<string, Action<Arguments>>
             {
                 ["mov"] = Move,
                 ["inc"] = Increase,
@@ -142,10 +144,7 @@ namespace CodeWars
                 ["end"] = End
             };
         public bool Completed { get; private set; }
-        public InstructionProcessor(ref ApplicationMemory appMemory)
-        {
-            _appMemory = appMemory;
-        }
+        public InstructionProcessor(ref ApplicationMemory appMemory) => _appMemory = appMemory;
         public void Process(Func<int, string> getLine)
         {
             var input = getLine(_instructionPointer++);
@@ -156,9 +155,8 @@ namespace CodeWars
             }
             if (input.Contains("msg"))
             {
-                input = SkipStartEmpties(input);
-                var content = input.Substring(3, input.Length - 3);
-                InstructionActions["msg"].Invoke(content, null);
+                input = SkipStartEmpties(input.Replace("msg", ""));
+                InstructionActions["msg"](new Arguments(input.Split("',")));
                 return;
             }
             var parts = input
@@ -166,90 +164,95 @@ namespace CodeWars
                 .Select(item => item.Replace(",", ""))
                 .Where(item => !string.IsNullOrEmpty(item))
                 .ToImmutableList();
-            InstructionActions[parts[0]](parts.Count == 1 ? null : parts[1], parts.Count < 3 ? null : parts[2]);
+            InstructionActions[parts[0]](new Arguments(parts.Skip(1).ToImmutableList()));
         }
         private static string SkipStartEmpties(string item) =>
             string.Join("", item.SkipWhile(ch => ch == ' '));
+        
         #region Actions
-
-                private void JumpLess(string arg1, string arg2)
+        private void JumpLess(Arguments arguments)
         {
-            if (_appMemory.InvokeComparison(Comparer.LessPredicate)) Jump(arg1, null);
+            if (_appMemory.InvokeComparison(Comparer.LessPredicate)) Jump(arguments);
         }
-        private void JumpLessOrEqual(string arg1, string arg2)
+        private void JumpLessOrEqual(Arguments arguments)
         {
-            if (_appMemory.InvokeComparison(Comparer.LessOrEqualPredicate)) Jump(arg1, null);
+            if (_appMemory.InvokeComparison(Comparer.LessOrEqualPredicate)) Jump(arguments);
         }
-        private void JumpGreater(string arg1, string arg2)
+        private void JumpGreater(Arguments arguments)
         {
-            if (_appMemory.InvokeComparison(Comparer.GreaterPredicate)) Jump(arg1, null);
+            if (_appMemory.InvokeComparison(Comparer.GreaterPredicate)) Jump(arguments);
         }
-        private void JumpGreaterOrEqual(string arg1, string arg2)
+        private void JumpGreaterOrEqual(Arguments arguments)
         {
-            if (_appMemory.InvokeComparison(Comparer.GreaterOrEqualPredicate)) Jump(arg1, null);
+            if (_appMemory.InvokeComparison(Comparer.GreaterOrEqualPredicate)) Jump(arguments);
         }
-        private void JumpEqual(string arg1, string arg2)
+        private void JumpEqual(Arguments arguments)
         {
-            if (_appMemory.InvokeComparison(Comparer.EqualPredicate)) Jump(arg1, null);
+            if (_appMemory.InvokeComparison(Comparer.EqualPredicate)) Jump(arguments);
         }
-        private void JumpNotEqual(string arg1, string arg2)
+        private void JumpNotEqual(Arguments arguments)
         {
-            if(_appMemory.InvokeComparison(Comparer.NotEqualPredicate)) Jump(arg1, null);
+            if(_appMemory.InvokeComparison(Comparer.NotEqualPredicate)) Jump(arguments);
         }
-        private void Compare(string arg1, string arg2)
+        private void Compare(Arguments arguments)
         {
-            _appMemory.AddComparedValues(arg1, arg2);
+            _appMemory.AddComparedValues(arguments.First, arguments.Second);
         }
-        private void End(string arg1, string arg2) => Completed = true;
-        private void Jump(string arg1, string arg2) => _instructionPointer = _appMemory.GetPointerOnLabel(arg1);
-        private void Return(string arg1, string arg2) => _instructionPointer = _appMemory.GetReturnPointer(); 
-        private void Call(string arg1, string arg2)
+        private void End(Arguments arguments = null) => Completed = true;
+        private void Jump(Arguments arguments) => _instructionPointer = _appMemory.GetPointerOnLabel(arguments.First);
+        private void Return(Arguments arguments = null) => _instructionPointer = _appMemory.GetReturnPointer(); 
+        private void Call(Arguments arguments)
         {
-            _appMemory.AddReturnPointer(_instructionPointer);
-            _instructionPointer = _appMemory.GetPointerOnLabel(arg1);
+            _appMemory.PushReturnPointer(_instructionPointer);
+            _instructionPointer = _appMemory.GetPointerOnLabel(arguments.First);
         }
-        private void Message(string arg1, string arg2)
+        private void Message(Arguments arguments)
         {
-            // TODO: Something should be here
-            //_output += string.Join("", outputArgs);
+            var cleanedArgs = arguments.ToImmutableList()
+                .Select(
+                    item => string.Join("", item.TakeWhile(ch => ch != "'".First()))
+                                .Replace(" ", "")
+                                .Replace(",", "") +
+                            string.Join("", item.SkipWhile(ch => ch != "'".First())).Replace("'", ""))
+                .Select(item => string.IsNullOrEmpty(item) ? ", " : item);
+            _appMemory.Output += string.Join("", cleanedArgs);
         }
-        private void Add(string arg1, string arg2)
+        private void Add(Arguments arguments)
         {
-            var isInt = int.TryParse(arg2, out var intValue);
-            _appMemory[arg1] += isInt
+            var isInt = int.TryParse(arguments.Second, out var intValue);
+            _appMemory[arguments.First] += isInt
                 ? intValue
-                : _appMemory[arg2];
-        }
-
-        private void Subtract(string arg1, string arg2)
-        {
-            var isInt = int.TryParse(arg2, out var intValue);
-            _appMemory[arg1] -= isInt
-                ? intValue
-                : _appMemory[arg2];;
-        }
-        private void Multiply(string arg1, string arg2)
-        {
-            var isInt = int.TryParse(arg2, out var intValue);
-            _appMemory[arg1] *= isInt
-                ? intValue
-                : _appMemory[arg2];
-        }
-        private void Divide(string arg1, string arg2)
-        {
-            var isInt = int.TryParse(arg2, out var intValue);
-            _appMemory[arg1] /= isInt
-                ? intValue
-                : _appMemory[arg2];
-        }
-        private void Decrease(string arg1, string arg2 = null) => _appMemory[arg1]--;
-        private void Increase(string arg1, string arg2 = null) => _appMemory[arg1]++;
-        private void Move(string nameA, string nameB)
-        {
-            var isInt = int.TryParse(nameB, out var intValue);
-            _appMemory[nameA] = isInt ? intValue : _appMemory[nameB];
+                : _appMemory[arguments.Second];
         }
 
+        private void Subtract(Arguments arguments)
+        {
+            var isInt = int.TryParse(arguments.Second, out var intValue);
+            _appMemory[arguments.First] -= isInt
+                ? intValue
+                : _appMemory[arguments.Second];
+        }
+        private void Multiply(Arguments arguments)
+        {
+            var isInt = int.TryParse(arguments.Second, out var intValue);
+            _appMemory[arguments.First] *= isInt
+                ? intValue
+                : _appMemory[arguments.Second];
+        }
+        private void Divide(Arguments arguments)
+        {
+            var isInt = int.TryParse(arguments.Second, out var intValue);
+            _appMemory[arguments.First] /= isInt
+                ? intValue
+                : _appMemory[arguments.Second];
+        }
+        private void Decrease(Arguments arguments) => _appMemory[arguments.First]--;
+        private void Increase(Arguments arguments) => _appMemory[arguments.First]++;
+        private void Move(Arguments arguments)
+        {
+            var isInt = int.TryParse(arguments.Second, out var intValue);
+            _appMemory[arguments.First] = isInt ? intValue : _appMemory[arguments.Second];
+        }
         #endregion
     }
 }
