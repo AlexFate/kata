@@ -96,7 +96,7 @@ namespace CodeWars
         public string Output { get; set; }
         public int this[string key]
         {
-            get => _variableValue[key];
+            get => _variableValue.ContainsKey(key) ? _variableValue[key] : int.Parse(key);
             set
             {
                 if (_variableValue.ContainsKey(key))
@@ -215,7 +215,8 @@ namespace CodeWars
                                 .Replace(",", "") +
                             string.Join("", item.SkipWhile(ch => ch != "'".First())).Replace("'", ""))
                 .Select(item => string.IsNullOrEmpty(item) ? ", " : item);
-            _appMemory.Output += string.Join("", cleanedArgs);
+            var injectValues = cleanedArgs.Select(item => item.Length == 1 ? _appMemory[item].ToString() : item);
+            _appMemory.Output += string.Join("", injectValues);
         }
         private void Add(Arguments arguments)
         {
