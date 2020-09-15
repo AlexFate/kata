@@ -12,25 +12,23 @@ namespace CodeWars
 
     public class AssemblyAdvanced
     {
-        private readonly ApplicationMemory _applicationMemory;
+        private readonly ApplicationMemory _appMemory;
         private InstructionProcessor Processor { get; }
         public AssemblyAdvanced()
         {
-            _applicationMemory = new ApplicationMemory();
-            Processor = new InstructionProcessor(ref _applicationMemory);
+            _appMemory = new ApplicationMemory();
+            Processor = new InstructionProcessor(ref _appMemory);
         }
         public string Execute(string program)
         {
             var lines = PrepareProgram(program);
             Interpret(lines);
-            return _applicationMemory.Output;
+            return _appMemory.Output;
         }
         private void Interpret(IReadOnlyList<string> program)
         {
             while (!Processor.Completed)
-            {
                 Processor.Process(pointer => pointer < program.Count ? program[pointer] : null);
-            }
         }
         private IReadOnlyList<string> PrepareProgram(string program)
         {
@@ -51,7 +49,7 @@ namespace CodeWars
             programLines.Where(str => str.EndsWith(':'))
                 .Select(item => new KeyValuePair<string, int>(item.Replace(":",""), programLines.IndexOf(item) + 1))
                 .ToImmutableList()
-                .ForEach(item => _applicationMemory.FillFunctionPointer(dic => dic.Add(item.Key, item.Value)));
+                .ForEach(item => _appMemory.FillFunctionPointer(dic => dic.Add(item.Key, item.Value)));
         }
     }
     public sealed class Comparer
@@ -59,7 +57,7 @@ namespace CodeWars
         public static readonly Func<int, int, bool> EqualPredicate = (a, b) => a == b;
         public static readonly Func<int, int, bool> NotEqualPredicate = (a, b) => !EqualPredicate(a, b);
         public static readonly Func<int, int, bool> GreaterPredicate = (a, b) => a > b;
-        public static readonly Func<int, int, bool> LessPredicate = (a, b) => !GreaterPredicate(a, b);
+        public static readonly Func<int, int, bool> LessPredicate = (a, b) => a < b;
         public static readonly Func<int, int, bool> LessOrEqualPredicate = (a, b) => LessPredicate(a, b) || EqualPredicate(a, b);
         public static readonly Func<int, int, bool> GreaterOrEqualPredicate = (a, b) => GreaterPredicate(a, b) || EqualPredicate(a, b);
         
@@ -74,18 +72,13 @@ namespace CodeWars
     }
     public sealed class Arguments
     {
-        private IImmutableList<string> args { get; }
-        public Arguments(IImmutableList<string> list) => args = list;
-        public Arguments(params string[] param) => args = param.ToImmutableList();
-        public string First => args[0];
-        public string Second => args.Count == 2 ? args[1] : "";
-        public int Count => args.Count;
-        public string this[int index]
-        {
-            get => args[index];
-            set => args.Add(value);
-        }
-        public ImmutableList<string> ToImmutableList() => args.ToImmutableList();
+        private IImmutableList<string> Args { get; }
+        public Arguments(IImmutableList<string> list) => Args = list;
+        public Arguments(params string[] param) => Args = param.ToImmutableList();
+        public string First => Args[0];
+        public string Second => Args.Count == 2 ? Args[1] : "";
+        public string this[int index] => Args[index];
+        public ImmutableList<string> ToImmutableList() => Args.ToImmutableList();
     }
     public class ApplicationMemory
     {
@@ -104,6 +97,12 @@ namespace CodeWars
                 else
                     _variableValue.Add(key, value);
             }
+        }
+        public string InjectValues(string input)
+        {
+            foreach (var (key, value) in _variableValue) 
+                input = input.Replace(key, value.ToString());
+            return input;
         }
         public void FillFunctionPointer(Action<Dictionary<string, int>> fill) => fill(_functionPointers);
         public void AddComparedValues(string arg1, string arg2)
@@ -148,27 +147,39 @@ namespace CodeWars
         public void Process(Func<int, string> getLine)
         {
             var input = getLine(_instructionPointer++);
-            if (string.IsNullOrEmpty(input))
+            if (IsProgramBroken(input))
             {
                 Completed = true;
+                _appMemory.Output = null;
                 return;
             }
-            if (input.Contains("msg"))
+            if (NeedSpecialMsgArgumentParser(input))
             {
                 input = SkipStartEmpties(input.Replace("msg", ""));
                 InstructionActions["msg"](new Arguments(input.Split("',")));
                 return;
             }
-            var parts = input
-                .Split(" ")
-                .Select(item => item.Replace(",", ""))
-                .Where(item => !string.IsNullOrEmpty(item))
-                .ToImmutableList();
-            InstructionActions[parts[0]](new Arguments(parts.Skip(1).ToImmutableList()));
+            
+            var parts = SplitWhiteSpaceAndRemoveComma(input);
+            try
+            {
+                InstructionActions[parts[0]](new Arguments(parts.Skip(1).ToImmutableList()));
+            }
+            catch
+            {
+                _instructionPointer++;
+            }
         }
         private static string SkipStartEmpties(string item) =>
             string.Join("", item.SkipWhile(ch => ch == ' '));
-        
+        private static bool IsProgramBroken(string input) => string.IsNullOrEmpty(input);
+        private static bool NeedSpecialMsgArgumentParser(string input) => input.Contains("msg");
+        private static ImmutableList<string> SplitWhiteSpaceAndRemoveComma(string input) => input
+            .Split(" ")
+            .Select(item => item.Replace(",", ""))
+            .Where(item => !string.IsNullOrEmpty(item))
+            .ToImmutableList();
+       
         #region Actions
         private void JumpLess(Arguments arguments)
         {
@@ -200,23 +211,26 @@ namespace CodeWars
         }
         private void End(Arguments arguments = null) => Completed = true;
         private void Jump(Arguments arguments) => _instructionPointer = _appMemory.GetPointerOnLabel(arguments.First);
-        private void Return(Arguments arguments = null) => _instructionPointer = _appMemory.GetReturnPointer(); 
+        private void Return(Arguments arguments = null)
+        {
+            _instructionPointer = _appMemory.GetReturnPointer();
+        }
+
         private void Call(Arguments arguments)
         {
             _appMemory.PushReturnPointer(_instructionPointer);
-            _instructionPointer = _appMemory.GetPointerOnLabel(arguments.First);
+            Jump(arguments);
         }
         private void Message(Arguments arguments)
         {
             var cleanedArgs = arguments.ToImmutableList()
                 .Select(
-                    item => string.Join("", item.TakeWhile(ch => ch != "'".First()))
+                    item => _appMemory.InjectValues(string.Join("", item.TakeWhile(ch => ch != "'".First())))
                                 .Replace(" ", "")
                                 .Replace(",", "") +
                             string.Join("", item.SkipWhile(ch => ch != "'".First())).Replace("'", ""))
                 .Select(item => string.IsNullOrEmpty(item) ? ", " : item);
-            var injectValues = cleanedArgs.Select(item => item.Length == 1 ? _appMemory[item].ToString() : item);
-            _appMemory.Output += string.Join("", injectValues);
+            _appMemory.Output += string.Join("", cleanedArgs.ToList());
         }
         private void Add(Arguments arguments)
         {
