@@ -20,4 +20,10 @@
       <ProjectReference Include="..\CodeWars\CodeWars.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="z_logs.csv">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
