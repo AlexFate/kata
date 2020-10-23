@@ -28,9 +28,15 @@ namespace CodeWars
         // А user_3@contest.yandex.ru и 880333333333 — к другому.
         #region HowManyPaymentsFromOneUser
 
-        public static int BiggerPayments(string pathToLogsCsv)
+        public static async Task<int> BiggerPayments(string pathToLogsCsv)
         {
-            return 0;
+            var collections = await ReadFromCsv(pathToLogsCsv);
+
+            var setOfSets = FirstCompressIteration(ref collections);
+
+            CompressingProcess(ref setOfSets);
+            
+            return setOfSets.Select(item => item.Count).Max();
         }
 
         public static async Task<IEnumerable<(string, string)>> ReadFromCsv(string path)
@@ -42,45 +48,83 @@ namespace CodeWars
                 .Select(item => item.Split(","))
                 .Select(item => (item[0], item[1]));
         }
+        private static IEnumerable<HashSet<(string, string)>> FirstCompressIteration(
+            ref IEnumerable<(string, string)> input)
+        {
+            var setOfSets = new HashSet<HashSet<(string, string)>>();
+            
+            foreach (var pair in input)
+            {
+                var firstFounded = setOfSets.FirstOrDefault(set => set.Any(tuple => tuple.PartialEqual(pair)));
+                if (firstFounded != null)
+                {
+                    firstFounded.Add(pair);
+                }
+                else
+                {
+                    setOfSets.Add(new HashSet<(string, string)> {pair});
+                }
+            }
+
+            return setOfSets;
+        }
+
+        private static void CompressingProcess(ref IEnumerable<HashSet<(string, string)>> setOfSets)
+        {
+            while (true)
+            {
+                var setsToRemove = new HashSet<HashSet<(string, string)>>();
+                foreach (var set in setOfSets)
+                {
+                    var firstWithSame = setOfSets.FirstOrDefault(item => item.PartialEqual(set));
+
+                    if (firstWithSame.FullEqual(set)) continue;
+
+                    firstWithSame?.UnionWith(set);
+                    setsToRemove.Add(set);
+                }
+
+                setOfSets = setOfSets.Except(setsToRemove).ToHashSet();
+
+                if (!setsToRemove.Any()) return;
+            }
+        }
         #endregion
     }
 
-    public static class HowManyPaymentKataExtensions
+    internal static class HowManyPaymentKataExtensions
     {
 
-        public static bool PartialEqual(this HashSet<(string, string)> hashSet1, HashSet<(string, string)> hashSet2)
+        internal static bool PartialEqual(this HashSet<(string, string)> hashSet1, HashSet<(string, string)> hashSet2)
         {
-            var boo = false;
-
             foreach (var item in hashSet1)
             {
                 foreach (var item2 in hashSet2)
                 {
                     if (item.PartialEqual(item2))
                     {
-                        boo = true;
-                        break;
+                        return true;
                     }
                 }
-                if(boo) break;
             }
             
-            return boo;
+            return false;
         }
 
-        public static bool FullEqual(this HashSet<(string, string)> hashSet1, HashSet<(string, string)> hashSet2)
+        internal static bool FullEqual(this ICollection<(string, string)> hashSet1, ICollection<(string, string)> hashSet2)
         {
-            if (hashSet1 == null || hashSet2 == null) return false;
+            if (hashSet1 == null) return hashSet2 == null;
+            if (hashSet1.Count != hashSet2.Count) return false;
             
             return !hashSet1.Except(hashSet2).Any();
         }
         
-        public static bool PartialEqual(this (string, string) item1, (string, string) item2)
+        internal static bool PartialEqual(this (string, string) item1, (string, string) item2)
         {
-            if (item1.Item1 == item2.Item1 || item1.Item2 == item2.Item2 || item1.Item1 == item2.Item2 ||
-                item1.Item2 == item2.Item1)
-                return true;
-            return false;
+            var (email, tel) = item1;
+            var (email2, tel2) = item2;
+            
+            return email == email2 || tel == tel2;
         }
     }
 }
