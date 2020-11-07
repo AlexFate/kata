@@ -17,6 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\CodeWarsFSharp\CodeWarsFSharp.fsproj" />
       <ProjectReference Include="..\CodeWars\CodeWars.csproj" />
     </ItemGroup>
 

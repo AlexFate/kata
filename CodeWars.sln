@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeWars", "CodeWars\CodeWa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample_Test", "Sample_Test\Sample_Test.csproj", "{DE24B2EF-F8AB-4EDB-AC90-DFDC23199C61}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "CodeWarsFSharp", "CodeWarsFSharp\CodeWarsFSharp.fsproj", "{5668B30F-F0BD-44C0-8715-F260097EA329}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{DE24B2EF-F8AB-4EDB-AC90-DFDC23199C61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE24B2EF-F8AB-4EDB-AC90-DFDC23199C61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE24B2EF-F8AB-4EDB-AC90-DFDC23199C61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5668B30F-F0BD-44C0-8715-F260097EA329}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5668B30F-F0BD-44C0-8715-F260097EA329}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5668B30F-F0BD-44C0-8715-F260097EA329}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5668B30F-F0BD-44C0-8715-F260097EA329}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
