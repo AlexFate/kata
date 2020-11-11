@@ -559,3 +559,7 @@ riderModule.iml
 /CodeWarsPython/venv/lib64/
 /.idea/.idea.CodeWars/.idea/.name
 /.idea/.idea.CodeWars/.idea/codeStyles/codeStyleConfig.xml
+/.idea/.name
+/.idea/codeStyles/codeStyleConfig.xml
+/.idea/vcs.xml
+/.idea/workspace.xml

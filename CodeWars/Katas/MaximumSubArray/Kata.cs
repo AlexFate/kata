@@ -5,32 +5,32 @@ namespace CodeWars
 {
     public partial class Kata
     {
-        // public static List<int> GetBiggerSub()
-        // {
-        //     return new List<int>();
-        // }
-        //
-        // private static IEnumerable<IEnumerable<int>> ParseOnSubs(IEnumerable<int> input) 
-        //     => input.Select((_, index) => input.Take(index));
-        //
-        // private static IEnumerable<IEnumerable<int>> GetSubsWithOutFirst(IEnumerable<int> input)
-        // {
-        //     var head = input.FirstOrDefault();
-        //     if (head != null)
-        //     {
-        //         var tail = input.Skip(1);
-        //         return GetSubsWithOutFirst(tail).Union(ParseOnSubs(tail));
-        //     }
-        //     return 
-        // }
-        //
-        // private static IEnumerable<IEnumerable<int>> GetAllSubs(IEnumerable<int> input) =>
-        //     ParseOnSubs(input).Union(GetSubsWithOutFirst(input));
+        public static int MaxSequence(int[] input)
+        {
+            var allSubs = GetAllSubs(input);
+            var indexedSums = allSubs
+                .Select((item, index) => (index, item.Sum())).ToHashSet();
 
-        // let rec allSubs listOfNums =
-        //     match listOfNums with
-        // | _ :: tail -> allSubs tail |> List.append (parseOnSubs tail)
-        // | [] -> []
-        // |> List.append (parseOnSubs listOfNums)
+            var biggerValue = indexedSums
+                .First(t => indexedSums.All(itm => itm.Item2 <= t.Item2));
+            
+            return biggerValue.Item2;
+        }
+        
+        private static IEnumerable<IEnumerable<int>> ParseOnSubs(IEnumerable<int> input) 
+            => input.Select((_, index) => input.Take(index+1));
+        
+        private static IEnumerable<IEnumerable<int>> GetAllSubs(IEnumerable<int> input)
+        {
+            var result = new List<List<int>>();
+            var tail = input;
+            while (true)
+            {
+                result = result.Union(new [] {tail}.Union(ParseOnSubs(tail))).Select(item => item.ToList()).ToList();
+                tail = tail.Skip(1);
+                if (!tail.Any()) break;
+            }
+            return result;
+        }
     }
 }

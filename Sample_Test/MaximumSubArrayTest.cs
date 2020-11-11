@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using CodeWars;
 using CodeWarsFSharp;
 using Xunit;
 
@@ -13,6 +15,12 @@ namespace Sample_Test
         public void FSharpSolutionTest(List<int> input, List<int> expected)
         {
             Assert.Equal(expected, MaximumSubArraySum.getBiggerSub(input));
+        }        
+        [Theory]
+        [ClassData(typeof(Input))]
+        public void CSharpSolutionTest(IEnumerable<int> input, List<int> expected)
+        {
+            Assert.Equal(expected.Sum(), Kata.MaxSequence(input.ToArray()));
         }
         
         private class Input : IEnumerable<object[]>
