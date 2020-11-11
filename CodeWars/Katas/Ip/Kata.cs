@@ -11,7 +11,7 @@ namespace CodeWars
         {
             if (ip == 0) return "0.0.0.0";
             var bits = GetValid32bitsString(Convert.ToString(ip, 2));
-            var ipBytes = Regex.Matches(bits, ".{8}").Cast<Match>()
+            var ipBytes = Regex.Matches(bits, ".{8}")
                 .Select(item => Convert.ToByte(item.Groups[0].Value, 2))
                 .ToArray();
             return string.Join(".", ipBytes);
