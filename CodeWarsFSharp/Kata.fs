@@ -74,9 +74,7 @@ module MaximumSubArraySum =
        subs.[findBiggerSubsIndex subs]
 
 //TODO: it
-module ListFiltering = 
-    open System
-    let filterNums : list<Object> -> seq<Object> = 
-        Seq.filter (fun (item: Object) -> item :? int )
+module ListFiltering =
+    let filterNums : obj list -> int list = List.filter (fun (item: obj) -> item :? int ) >> List.map unbox
 
     filterNums [1;2;3;'a'; 5; 't']
