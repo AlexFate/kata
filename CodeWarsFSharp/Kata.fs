@@ -76,5 +76,9 @@ module MaximumSubArraySum =
 //TODO: it
 module ListFiltering =
     let filterNums : obj list -> int list = List.filter (fun (item: obj) -> item :? int ) >> List.map unbox
-
-    filterNums [1;2;3;'a'; 5; 't']
+    
+module Summation =
+    let rec summation num = [0 .. num] |> List.sum
+    
+module Clock =
+    let past h m s = (+) s >> (+) <| m * 60 >> (+) <| h * 3600 >> (*) 1000 <| 0
