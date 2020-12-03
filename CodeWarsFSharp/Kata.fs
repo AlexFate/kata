@@ -72,3 +72,13 @@ module MaximumSubArraySum =
        let nums = listOfNums |> List.ofSeq
        let subs = getAllSubs nums
        subs.[findBiggerSubsIndex subs]
+
+//TODO: it
+module ListFiltering =
+    let filterNums : obj list -> int list = List.filter (fun (item: obj) -> item :? int ) >> List.map unbox
+    
+module Summation =
+    let rec summation num = [0 .. num] |> List.sum
+    
+module Clock =
+    let past h m s = (+) s >> (+) <| m * 60 >> (+) <| h * 3600 >> (*) 1000 <| 0
