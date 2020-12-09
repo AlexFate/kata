@@ -22,9 +22,14 @@ namespace CodeWars
                     true => "=:" + new string(uniqueItem, countIn1),
                     false when (countIn1 < countIn2) => "2:" + new string(uniqueItem, countIn2),
                     _ => "1:" + new string(uniqueItem, countIn1)
-                }).ToList();
+                })
+                .OrderByDescending(x => x.Length)
+                .ThenBy(x => !x.Contains('=') ? string.Join("", x.Take(2)) : "9")
+                .ThenBy(x => string.Join("", x.Skip(2)))
+                .TakeWhile(item => item.Length > 3)
+                .ToList();
             
-            return "";
+            return string.Join('/', listRows);
         }
     }
 }
