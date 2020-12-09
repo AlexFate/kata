@@ -77,8 +77,35 @@ module MaximumSubArraySum =
 module ListFiltering =
     let filterNums : obj list -> int list = List.filter (fun (item: obj) -> item :? int ) >> List.map unbox
     
-module Summation =
-    let rec summation num = [0 .. num] |> List.sum
-    
-module Clock =
-    let past h m s = (+) s >> (+) <| m * 60 >> (+) <| h * 3600 >> (*) 1000 <| 0
+module Summation = let rec summation num = [0 .. num] |> List.sum
+
+module Clock = let past h m s = (+) s >> (+) <| m * 60 >> (+) <| h * 3600 >> (*) 1000 <| 0
+
+module ConsecutiveStrings =
+    let longestConsec k (arr:seq<string>) =
+        match k <= 0 with
+        | true -> ""
+        | false ->
+            let arr = arr :?> list<string> 
+            let mutable max = ""
+            for i = 0 to (arr.Length - k) do
+                let current = arr.[i .. (i + k - 1)] |> List.fold (+) ""
+                if current.Length > max.Length then max <- current
+            max
+    let longestConsecAlt k (strings : string seq) =
+        let n = Seq.length strings
+        if 0 < k && k <= n then
+            strings
+            |> Seq.windowed k
+            |> Seq.maxBy (Array.sumBy String.length)
+            |> String.Concat
+        else
+            String.Empty
+            
+module BeginnerSeries3SumOfNumbers =
+    let getSum a b =
+        match a > b with
+        | true -> [b .. a] |> List.sum
+        | false -> [a .. b] |> List.sum
+       
+        
