@@ -107,5 +107,14 @@ module BeginnerSeries3SumOfNumbers =
         match a > b with
         | true -> [b .. a] |> List.sum
         | false -> [a .. b] |> List.sum
-       
         
+module SumOfParts =
+    let partsSums (arr: int[]) =
+        let sum = arr |> Array.sum
+        let mutable difference = 0
+        match arr with
+        | [||] -> [|0|]
+        | _ -> [|sum|] |> Array.append arr |> Array.map (fun item ->
+                                                            let result = sum - difference
+                                                            difference <- difference + item
+                                                            result)
