@@ -1,5 +1,6 @@
 ﻿namespace CodeWarsFSharp
 open System
+open System.Collections.Generic
 
 module BasicSequencePractice =
     let rec sum list =
@@ -118,3 +119,9 @@ module SumOfParts =
                                                             let result = sum - difference
                                                             difference <- difference + item
                                                             result)
+module HowMuch =
+    let howMuch m n =
+        let (low, up) = if m <= n then (m,n) else (n,m)
+        [low .. up]
+        |> List.filter (fun i -> (i % 7) = 2 && (i % 9) = 1)
+        |> List.map (fun i -> ["M: " + (string)i; "B: " + (string)(i/7); "C: " + (string)(i/9)])
