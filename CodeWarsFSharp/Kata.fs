@@ -121,7 +121,6 @@ module SumOfParts =
                                                             result)
 module HowMuch =
     let howMuch m n =
-        let (low, up) = if m <= n then (m,n) else (n,m)
-        [low .. up]
+        [min m n .. max m n]
         |> List.filter (fun i -> (i % 7) = 2 && (i % 9) = 1)
         |> List.map (fun i -> ["M: " + (string)i; "B: " + (string)(i/7); "C: " + (string)(i/9)])
