@@ -124,3 +124,9 @@ module HowMuch =
         [min m n .. max m n]
         |> List.filter (fun i -> (i % 7) = 2 && (i % 9) = 1)
         |> List.map (fun i -> ["M: " + (string)i; "B: " + (string)(i/7); "C: " + (string)(i/9)])
+
+module MagnetParticularsInBoxes =
+    let v (k:float) (n:float) = 1.0 / (k *  (n + 1.0) ** (2.0*k))
+    let u k N = [|for n in 1 .. N -> v k ((float)n)|] |> Array.sum
+    let S K N = [|for k in 1 .. K -> u ((float)k) N|] |> Array.sum
+    let doubles maxK maxN = S maxK maxN
