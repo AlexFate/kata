@@ -5,10 +5,10 @@ using Xunit;
 
 namespace Sample_Test
 {
-    public class TwoSum
+    public class TwoSumTest
     {
         [Fact]
-        public async Task Test()
+        public void Test()
         {
             Assert.Equal(new [] { 0, 1 }, Kata.TwoSum(new [] { 2, 2, 3 }, 4).OrderBy(a => a).ToArray());
             Assert.Equal(new [] { 0, 2 }, Kata.TwoSum(new [] { 1, 2, 3 }, 4).OrderBy(a => a).ToArray());
