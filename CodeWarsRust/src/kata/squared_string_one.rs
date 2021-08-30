@@ -1,1 +1,0 @@
-mod squared_string_one;
