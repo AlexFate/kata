@@ -1,20 +1,24 @@
-fn oper<F: Fn(String) -> String>(fct: F, s: String) -> String {
+pub fn oper<F: Fn(String) -> String>(fct: F, s: String) -> String {
     fct(s)
 }
 
-fn vert_mirror(input: String) -> String {
+pub fn vert_mirror(input: String) -> String {
     input.split("\n")
             .into_iter()
-            .map(|sub| sub.chars().rev().collect::<String>())
+            .map(|sub| reverse(sub))
             .collect::<Vec<String>>()
             .join("\n")
 }
 
-fn hor_mirror(input: String) -> String {
+pub fn hor_mirror(input: String) -> String {
     input.split('\n')
             .rev()
             .collect::<Vec<&str>>()
             .join("\n")
+}
+
+pub fn reverse(input: &str) -> String {
+    input.chars().rev().collect::<String>()
 }
 
 #[cfg(test)]
