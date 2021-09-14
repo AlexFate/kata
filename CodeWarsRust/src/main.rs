@@ -1,3 +1,4 @@
+mod range_extraction;
 mod rgb_to_hex;
 mod weight_for_weight;
 mod squared_string_two;
