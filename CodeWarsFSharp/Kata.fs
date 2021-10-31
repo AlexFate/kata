@@ -1,6 +1,5 @@
 ﻿namespace CodeWarsFSharp
 open System
-open System.Collections.Generic
 
 module BasicSequencePractice =
     let rec sum list =
@@ -130,4 +129,56 @@ module MagnetParticularsInBoxes =
     let u k N = [|for n in 1 .. N -> v k (float n)|] |> Array.sum
     let S K N = [|for k in 1 .. K -> u (float k) N|] |> Array.sum
     let doubles maxK maxN = S maxK maxN
+
+module PhoneDirectory =
+    open System.Linq
+    [<Struct>]
+    type PhoneBookRow = {
+        Phone: string
+        Name: string
+        Address: string
+    }
+    
+    let toString (row: PhoneBookRow) =
+        let del = ", "
+        "Phone => " + row.Phone + del + "Name => " + row.Name + del + "Address => " + row.Address
+    
+    let getLines (line: string) =
+        line.Split("\n" |> Seq.toArray)
+    
+    let search (num: string) (lines: string[]) =
+        lines |> Array.Parallel.choose (fun (line: string) -> if line.Contains(num) then Some line else None)
         
+    let extractName (line:string) =
+        let initialIndex = line.IndexOf('<') + 1
+        let endIndex = line.IndexOf('>') - 1
+        line.[initialIndex..endIndex]
+    
+    let isAddress (chars: char seq) =
+        let nonAddressSymbols = ['<'; '>'; '+';]
+        let founded = chars |> Seq.tryFind (nonAddressSymbols.Contains)
+        match founded with
+        | Some _ -> false
+        | _ -> true
+    
+    let extractAddress (line: string) =
+        line.Split([|' '; ';'|]) |> Seq.filter (fun sub -> not (String.IsNullOrEmpty(sub)) ) |> Seq.filter (fun subString -> subString |> isAddress) |>
+        Seq.map (fun sub -> sub.TrimStart().TrimEnd()) |> String.concat " "
+    
+    let replaceGarbage (address: string) =
+        address.Replace("_", " ").Replace(",", "").Replace("/", "").TrimStart().TrimEnd()
+    
+    let toPhoneBookRow (num: string) (line: string) =
+        let address = line |> extractAddress |> replaceGarbage
+        {
+            Phone = num
+            Address = address
+            Name = line |> extractName
+        }
+        
+    let phone (input: string) (num: string) =
+        let addressBooklines = input |> getLines |> search ("+" + num)
+        match addressBooklines.Count() with
+        | 0 -> "Error => Not found: " + num
+        | 1 -> addressBooklines.[0] |> toPhoneBookRow num |> toString
+        | _ -> "Error => Too many people: " + num
