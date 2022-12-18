@@ -184,7 +184,26 @@ module PhoneDirectory =
         | 1 -> addressBooklines.[0] |> toPhoneBookRow num |> toString
         | _ -> "Error => Too many people: " + num
 
-// https://www.codewars.com/kata/5552101f47fc5178b1000050
+/// https://www.codewars.com/kata/550527b108b86f700000073f/train/fsharp
+module PiApproximation =
+    let inline p i b =
+      (pown -1.0 i)/(double b)
+
+    let inline f s v =
+      let counter, value = s
+      (counter + 1, value + v)
+
+    let inline r v =
+      let (counter, value) = v
+      printf "%f" value
+      counter, 4.0 * value
+
+    let iterPi epsilon =
+      [|for a in 3 .. 2 .. 10 -> a|] 
+        |> Array.Parallel.mapi p
+        |> (Array.fold f (0, 0.0))
+
+/// https://www.codewars.com/kata/5552101f47fc5178b1000050
 module PlayWithDigits =
     let stringifyInt num = num.ToString()
     let floatParse num = num |> fun i -> i.ToString() |> Convert.ToDouble
