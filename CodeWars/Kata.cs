@@ -1,9 +1,8 @@
 
 
-namespace CodeWars
+namespace CodeWars;
+
+public partial class Kata
 {
-    public partial class Kata
-    {
         
-    }
 }
