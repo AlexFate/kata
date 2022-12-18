@@ -1,5 +1,6 @@
 ﻿namespace CodeWarsFSharp
 open System
+open Microsoft.FSharp.Core
 
 module BasicSequencePractice =
     let rec sum list =
@@ -182,3 +183,19 @@ module PhoneDirectory =
         | 0 -> "Error => Not found: " + num
         | 1 -> addressBooklines.[0] |> toPhoneBookRow num |> toString
         | _ -> "Error => Too many people: " + num
+
+// https://www.codewars.com/kata/5552101f47fc5178b1000050
+module PlayWithDigits =
+    let stringifyInt num = num.ToString()
+    let floatParse num = num |> fun i -> i.ToString() |> Convert.ToDouble
+    let getNumIntegers num =
+        num |> stringifyInt |> Seq.map floatParse
+    let digPow num initialPow =
+        let sumOfPowered = getNumIntegers num
+                            |> Seq.mapi (fun i itm -> Math.Pow(itm, float (initialPow+i)))
+                            |> Seq.sum
+                            |> int
+        match sumOfPowered % num = 0 with
+         | true -> (sumOfPowered / num) |> int64
+         | _ -> int64 -1
+    let DigPow(num, initialPow) = digPow num initialPow 
