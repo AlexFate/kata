@@ -186,22 +186,26 @@ module PhoneDirectory =
 
 /// https://www.codewars.com/kata/550527b108b86f700000073f/train/fsharp
 module PiApproximation =
-    let inline p i b =
-      (pown -1.0 i)/(double b)
-
-    let inline f s v =
-      let counter, value = s
-      (counter + 1, value + v)
-
-    let inline r v =
-      let (counter, value) = v
-      printf "%f" value
-      counter, 4.0 * value
+    let inline getMember i b : double =
+      (pown -1.0 i) / double b
 
     let iterPi epsilon =
-      [|for a in 3 .. 2 .. 10 -> a|] 
-        |> Array.Parallel.mapi p
-        |> (Array.fold f (0, 0.0))
+      let multiplier = double 4.0
+      let count = Math.Ceiling(double 1 / epsilon) |> int
+      let top = 2 * count - 1
+      [|for a in 1 .. 2 .. top -> a|] 
+        |> Array.Parallel.mapi getMember
+        |> Array.sum
+        |> fun resultCandidate ->
+            let pi = resultCandidate * multiplier
+            if ((pi - Math.PI) |> Math.Abs > epsilon)
+            then
+                let countFixed = count + 1
+                let diffComp = getMember (countFixed / 5 |> int) (top + 2)
+                let pi = (resultCandidate + diffComp) * multiplier
+                (countFixed, pi)
+            else
+                (count, pi)
 
 /// https://www.codewars.com/kata/5552101f47fc5178b1000050
 module PlayWithDigits =
