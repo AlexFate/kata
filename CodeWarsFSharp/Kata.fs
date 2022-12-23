@@ -221,4 +221,9 @@ module PlayWithDigits =
         match sumOfPowered % num = 0 with
          | true -> (sumOfPowered / num) |> int64
          | _ -> int64 -1
-    let DigPow(num, initialPow) = digPow num initialPow 
+    let DigPow(num, initialPow) = digPow num initialPow
+
+// https://www.codewars.com/kata/515e271a311df0350d00000f/train/fsharp
+module SquareNSum =
+    let squareSum (numbers: int list) =
+        numbers |> (Seq.map (fun i -> pown i 2) >> Seq.sum)
