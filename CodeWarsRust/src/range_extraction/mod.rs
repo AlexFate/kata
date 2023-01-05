@@ -1,7 +1,3 @@
-const COMMA: &str = ",";
-const DASH: &str = "-";
-
-
 fn range_extraction(list: &[i32]) -> String { 
     let is_gap = |left, right| right - left > 1;
     let last = list.len() - 1;

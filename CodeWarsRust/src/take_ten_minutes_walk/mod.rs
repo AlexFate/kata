@@ -4,14 +4,14 @@ fn is_valid_walk(walk: &[char]) -> bool {
         false
     }
     else {
-        let resultPosition = walk.into_iter()
+        let result_position = walk.into_iter()
         .map(to_direction)
         .fold((0, 0), |agg, i| {
             match (agg, i) {
                 ((cur_vert,cur_h), (vert, hor)) => (cur_vert + vert, cur_h + hor)
             }
         });
-        resultPosition == (0, 0)
+        result_position == (0, 0)
     }
 }
 
