@@ -10,6 +10,7 @@ mod sq_in_rect;
 mod sum_of_odd_triangle;
 mod ones_and_zeros;
 mod invert_values;
+mod descending_order;
 
 fn main() {
     todo!()
