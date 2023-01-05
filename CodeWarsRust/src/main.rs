@@ -9,6 +9,7 @@ mod perimetr;
 mod sq_in_rect;
 mod sum_of_odd_triangle;
 mod ones_and_zeros;
+mod invert_values;
 
 fn main() {
     todo!()
