@@ -35,7 +35,7 @@ mod unit_tests {
     #[case(&['n','n','n','s','n','s','n','s','n','s'], false)]
     #[case(&['n','n','n','s','n'], false)]
     #[case(&['n','s','n','s','n','s','n','s','n','s','s'], false)]
-    fn row_sum_odd_numbers_test(#[case] row: &[char], #[case] expected: bool) {
+    fn is_valid_walk_test(#[case] row: &[char], #[case] expected: bool) {
         assert_eq!(is_valid_walk(row), expected)
     }
 }
