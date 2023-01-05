@@ -12,6 +12,7 @@ mod ones_and_zeros;
 mod invert_values;
 mod descending_order;
 mod remove_first_last;
+mod take_ten_minutes_walk;
 
 fn main() {
     todo!()
