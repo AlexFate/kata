@@ -25,7 +25,7 @@ mod unit_tests {
     #[case((3, 5), Some(vec![3, 2, 1, 1]))]
     #[case((5, 5), None)]
     #[case((20, 14), Some(vec![14, 6, 6, 2, 2, 2]))]
-    fn sqInRect_test(#[case] input: (i32, i32), #[case] expected: Option<Vec<i32>>) {
+    fn sq_in_rect_test(#[case] input: (i32, i32), #[case] expected: Option<Vec<i32>>) {
         let (heigth, width) = input;
         assert_eq!(sq_in_rect(heigth, width), expected);
     }
