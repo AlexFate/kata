@@ -11,6 +11,7 @@ mod sum_of_odd_triangle;
 mod ones_and_zeros;
 mod invert_values;
 mod descending_order;
+mod remove_first_last;
 
 fn main() {
     todo!()
